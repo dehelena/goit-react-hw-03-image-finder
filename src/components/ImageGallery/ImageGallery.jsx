@@ -1,9 +1,26 @@
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 
-import { StyledImageGallery } from "./ImageGalleryStyled";
+import { ImageGalleryItem } from './ImageGalleryItem';
+import { StyledImageGallery } from './ImageGalleryStyled';
 
-export const ImageGallery = () => (
+export const ImageGallery = ({ images }) => {
+  return (
     <StyledImageGallery className="gallery">
-  {/* {children} */}
-</StyledImageGallery>
-)
+      {images.map(image => {
+        return (
+          <li key={image.id}>
+            <ImageGalleryItem image={image} />
+          </li>
+        );
+      })}
+    </StyledImageGallery>
+  );
+};
+
+ImageGallery.propTypes = {
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+    }).isRequired
+  ),
+};

@@ -1,46 +1,27 @@
-// import PropTypes from 'prop-types';
-
+import { FaSearch } from 'react-icons/fa';
 import { Component } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { StyledSearchbar } from './SearchbarStyled';
 
-// export const Searchbar = ({ onSubmit }) => (
-//   <StyledSearchbar className="searchbar">
-//     <form className="form" onSubmit={onSubmit}>
-//       <button type="submit" className="button">
-//         <span className="button-label">Search</span>
-//       </button>
-
-//       <input
-//         className="input"
-//         type="text"
-//         autocomplete="off"
-//         autofocus
-//         placeholder="Search images and photos"
-//       />
-//     </form>
-//   </StyledSearchbar>
-// );
-
 class Searchbar extends Component {
   state = {
-    searchWord: '',
+    query: '',
   };
 
-  handleSearchWordChange = e => {
-    this.setState({ searchWord: e.target.value });
+  handleQueryChange = e => {
+    this.setState({ query: e.target.value.toLowerCase() });
   };
 
   handleSubmit = e => {
     e.preventDefault();
 
-    if (this.state.searchWord.trim() === '') {
+    if (this.state.query.trim() === '') {
       return toast.warn('Please enter search parameter');
     }
-
-    this.props.onSubmit(this.state.searchWord);
-    this.setState({ searchName: '' });
+    //при відпраці форми пропсам з App передаємо значення query
+    this.props.onSubmit(this.state.query);
+    this.setState({ query: '' });
   };
 
   render() {
@@ -48,7 +29,7 @@ class Searchbar extends Component {
       <StyledSearchbar className="searchbar">
         <form className="form" onSubmit={this.handleSubmit}>
           <button type="submit" className="button">
-            <span className="button-label">Search</span>
+            <FaSearch />
           </button>
           <input
             className="input"
@@ -56,8 +37,8 @@ class Searchbar extends Component {
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
-            onChange={this.handleSearchWordChange}
-            value={this.state.searchWord}
+            onChange={this.handleQueryChange}
+            value={this.state.query}
           />
         </form>
       </StyledSearchbar>

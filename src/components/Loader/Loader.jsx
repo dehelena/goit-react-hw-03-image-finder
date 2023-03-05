@@ -1,7 +1,19 @@
-// import PropTypes from 'prop-types';
+import { Component } from 'react';
+import css from './Loader.module.css';
 
-import { StyledLoader } from './LoaderStyled';
-
-export const Loader = () => {
-  <StyledLoader src="your-loader-url" />;
-};
+export class Loader extends Component {
+  render() {
+    return (
+      <div className={css.roller}>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    );
+  }
+}

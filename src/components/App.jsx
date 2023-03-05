@@ -1,70 +1,90 @@
 // import axios from 'axios';
 import React, { Component } from 'react';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { Button } from './Button/Button';
 import { ImageGallery } from './ImageGallery/ImageGallery';
-import { ImageGalleryItem } from './ImageGallery/ImageGalleryItem';
 import { Loader } from './Loader/Loader';
-import { Modal } from './Modal/Modal';
 import Searchbar from './Searchbar/Searchbar';
-import { FetchImages } from './services/pixabayAPI';
+import { requestImages } from './services/pixabayAPI';
 
 export class App extends Component {
   state = {
-    img: null,
-    searchWord: '',
+    images: [],
+    query: '',
     isLoading: false,
-    showModal: false,
     error: null,
+    page: 1,
+    totalHits: null,
   };
 
-  handleSearchbarSubmit = searchWord => {
-    this.setState({ searchWord });
-    // console.log(searchWord);
+  handleLoadMore = () => {
+    this.setState(prev => ({ page: prev.page + 1 }));
   };
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
+  //початкові значення при відправці запиту
+  handleSearchbarSubmit = query => {
+    this.setState({
+      query,
+      images: [],
+      page: 1,
+    });
   };
 
-  // const pixabayKey = '33097272-5cfe3e3a455a7cd5afa001a4b';
-  // const url = `https://pixabay.com/api/?q=cat&page=1&key={pixabayKey}&image_type=photo&orientation=horizontal&per_page=12`;
-  componentDidMount() {
-    const fetchImages = async searchWord => {
-      try {
-        this.setState({ isLoading: true });
-      } catch {
-        // const images = await this.setState({ error: error.message });
-      } finally {
-      }
-    };
-    // fetchImages(searchWord);
+  checkLoadMore = (page, totalHits) => {
+    return page < Math.ceil(totalHits / 12);
+  };
+
+  componentDidUpdate(_, prevState) {
+    const { query, page } = this.state;
+    if (prevState.query !== query || prevState.page !== page) {
+      // console.log(this.state.query, this.state.page);
+
+      const fetchImages = async () => {
+        try {
+          this.setState({ isLoading: true });
+          const data = await requestImages(query, page);
+          const images = data.hits;
+          const totalHits = data.totalHits;
+          // console.log(images);
+          // console.log(totalHits);
+
+          if (!totalHits) {
+            return toast.error('No images. Please try again');
+          }
+
+          if (page === 1) {
+            toast.success(`We found ${totalHits} images`);
+          }
+
+          // this.setState({ images });
+          this.setState(prevState => ({
+            images: [...prevState.images, ...images],
+            totalHits,
+          }));
+        } catch (error) {
+          this.setState({ error: error.message });
+        } finally {
+          this.setState({ isLoading: false });
+        }
+      };
+      fetchImages();
+    }
   }
 
   render() {
-    const { showModal } = this.state;
+    const { error, totalHits, page, isLoading } = this.state;
     return (
       <div>
         <Searchbar onSubmit={this.handleSearchbarSubmit} />
-        <ImageGallery />
-        <ImageGalleryItem />
-        {/* <Loader /> */}
-        <Button />
-        <button type="button" onClick={this.toggleModal}>
-          Modal open
-        </button>
-        {showModal && (
-          <Modal onClose={this.toggleModal}>
-            <button type="button" onClick={this.toggleModal}>
-              Close
-            </button>
-          </Modal>
+        <ImageGallery images={this.state.images} />
+        {this.checkLoadMore(page, totalHits) ? (
+          <Button onLoadMore={this.handleLoadMore} />
+        ) : (
+          ''
         )}
-        {/* {isLoading && } */}
-        <Loader />
-        <ToastContainer autoClose={3000} />
+        {isLoading && <Loader />}
+        {error && <p>Oops, something went wrong {error}</p>}
+        <ToastContainer autoClose={4000} />
       </div>
     );
   }

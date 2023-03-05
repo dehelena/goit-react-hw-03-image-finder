@@ -14,23 +14,24 @@ export class Modal extends Component {
   }
 
   onEscPress = e => {
-      if (e.code === 'Escape') {
+    if (e.code === 'Escape') {
       this.props.onClose();
     }
   };
 
-    
-    handleBackdropClick = e => {
-        if (e.currentTarget === e.target) {
-            this.props.onClose();
-        }
+  handleBackdropClick = e => {
+    if (e.currentTarget === e.target) {
+      this.props.onClose();
     }
+  };
 
   render() {
     return createPortal(
-      <StyledModalBackdrop className="overlay" onClick={this.handleBackdropClick}>
+      <StyledModalBackdrop
+        className="overlay"
+        onClick={this.handleBackdropClick}
+      >
         <div className="modal">{this.props.children}</div>
-        <img src="" alt="" />
       </StyledModalBackdrop>,
       modalRoot
     );
